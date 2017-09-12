@@ -14,8 +14,8 @@ public class Main {
   }
 
   /**
-   * Запускает kMeans на случайным образом сгенерированных данных.
-   * @param args -
+   * Запускает kMeans++ на случайным образом сгенерированных данных.
+   * @param args ignored
    */
   public static void main(String[] args) {
 
@@ -23,8 +23,7 @@ public class Main {
     int width = 100;
 
     Point[] points = generateRandomPoints(10, height, width);
-    Point[] clusters = generateRandomPoints(3, height, width);
-
+    Point[] clusters = Clustering.kMeansPP(points, 3);
     int[] clustersIndex = Clustering.kMeans(clusters, points);
 
     for (int clusterIndex = 0; clusterIndex < clusters.length; clusterIndex++) {

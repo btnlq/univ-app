@@ -12,6 +12,12 @@ class Point {
     return Math.hypot(x - other.x, y - other.y);
   }
 
+  public double distanceSq(Point other) {
+    double dx = x - other.x;
+    double dy = y - other.y;
+    return dx * dx + dy * dy;
+  }
+
   public void append(Point other) {
     x += other.x;
     y += other.y;
