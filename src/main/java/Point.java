@@ -8,6 +8,14 @@ class Point {
     this.y = y;
   }
 
+  public double getX() {
+    return x;
+  }
+
+  public double getY() {
+    return y;
+  }
+
   public double distance(Point other) {
     return Math.hypot(x - other.x, y - other.y);
   }
