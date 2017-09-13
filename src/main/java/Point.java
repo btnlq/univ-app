@@ -1,41 +1,24 @@
-class Point {
+import javafx.geometry.Point2D;
 
-  private double x;
-  private double y;
+class Point extends Point2D {
 
+  /**
+   * Creates a new instance of {@code Point}.
+   *
+   * @param x the x coordinate of the point
+   * @param y the y coordinate of the point
+   */
   public Point(double x, double y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public double getX() {
-    return x;
-  }
-
-  public double getY() {
-    return y;
-  }
-
-  public double distance(Point other) {
-    return Math.hypot(x - other.x, y - other.y);
+    super(x, y);
   }
 
   public double distanceSq(Point other) {
-    double dx = x - other.x;
-    double dy = y - other.y;
+    double dx = getX() - other.getX();
+    double dy = getY() - other.getY();
     return dx * dx + dy * dy;
   }
 
-  public void append(Point other) {
-    x += other.x;
-    y += other.y;
-  }
-
-  public Point multiply(double factor) {
-    return new Point(x * factor, y * factor);
-  }
-
   public String toString() {
-    return "(" + x + ", " + y + ")";
+    return "(" + getX() + ", " + getY() + ")";
   }
 }

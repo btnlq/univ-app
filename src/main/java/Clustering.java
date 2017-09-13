@@ -20,16 +20,18 @@ public class Clustering {
 
   static class Centroid {
 
-    private Point sum = new Point(0, 0);
-    private int cnt = 0;
+    private double x;
+    private double y;
+    private int cnt;
 
     void putPoint(Point point) {
-      sum.append(point);
+      x += point.getX();
+      y += point.getY();
       cnt++;
     }
 
     Point centroid() {
-      return sum.multiply(1.0 / cnt);
+      return new Point(x/cnt, y/cnt);
     }
   }
 
