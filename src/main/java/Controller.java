@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.MouseEvent;
@@ -12,6 +13,9 @@ public class Controller {
   public Canvas pointsCanvas;
   public Canvas clustersCanvas;
   public Spinner<Integer> clustersCountSpinner;
+  public Button initButton;
+  public Button clusterButton;
+  public Button clearButton;
 
   private List<Point> points = new ArrayList<>();
   private Point[] clusters;
@@ -20,6 +24,8 @@ public class Controller {
   private static final int CLUSTER_RADIUS = 3;
 
   public void initialize() {
+    clustersCountSpinner.valueProperty().addListener((obs, oldValue, newValue)
+        -> initButton.setDisable(newValue == 0));
     clear();
   }
 
@@ -47,6 +53,8 @@ public class Controller {
   public void init() {
     clusters = Clustering.kMeansPP(points.toArray(new Point[0]), clustersCountSpinner.getValue());
     redrawClusters(null);
+
+    clusterButton.setDisable(false);
   }
 
   /**
@@ -86,6 +94,9 @@ public class Controller {
     clustersCountSpinner.setValueFactory(
         new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 0)
     );
+
+    clusterButton.setDisable(true);
+    clearButton.setDisable(true);
   }
 
   public void onCanvasClicked(MouseEvent mouseEvent) {
@@ -100,6 +111,8 @@ public class Controller {
             0, points.size(), clustersCountSpinner.getValue()
         )
     );
+
+    clearButton.setDisable(false);
   }
 
   private static void drawCircle(GraphicsContext gc, Point p, double radius) {
