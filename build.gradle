@@ -5,7 +5,13 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'checkstyle'
 
-mainClassName = 'Main'
+// Для поддержки русского языка в заголовках
+// compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+mainClassName = 'Gui'
 sourceCompatibility = 1.8
 
 repositories {

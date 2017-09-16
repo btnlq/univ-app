@@ -18,18 +18,20 @@ public class Clustering {
     return bestIndex;
   }
 
-  static class Centroid {
+  static class CentroidCalculator {
 
-    private Point sum = new Point(0, 0);
-    private int cnt = 0;
+    private double x;
+    private double y;
+    private int cnt;
 
     void putPoint(Point point) {
-      sum.append(point);
+      x += point.getX();
+      y += point.getY();
       cnt++;
     }
 
-    Point centroid() {
-      return sum.multiply(1.0 / cnt);
+    Point get() {
+      return new Point(x / cnt, y / cnt);
     }
   }
 
@@ -57,15 +59,15 @@ public class Clustering {
         break;
       }
 
-      Centroid[] centroids = new Centroid[clusters.length];
+      CentroidCalculator[] calculators = new CentroidCalculator[clusters.length];
       for (int i = 0; i < clusters.length; i++) {
-        centroids[i] = new Centroid();
+        calculators[i] = new CentroidCalculator();
       }
       for (int i = 0; i < points.length; i++) {
-        centroids[clustersIndex[i]].putPoint(points[i]);
+        calculators[clustersIndex[i]].putPoint(points[i]);
       }
       for (int i = 0; i < clusters.length; i++) {
-        clusters[i] = centroids[i].centroid();
+        clusters[i] = calculators[i].get();
       }
     }
 
@@ -78,7 +80,7 @@ public class Clustering {
    *
    * @param points Кластеризуемые точки
    * @param clustersCount Требуемое количество кластеров
-   * @return Положеня центров кластеров
+   * @return Положения центров кластеров
    */
   public static Point[] kMeansPP(Point[] points, int clustersCount) {
 
@@ -120,6 +122,46 @@ public class Clustering {
     }
 
     return clusters;
+  }
+
+  static class DeviationCalculator {
+
+    private double sum;
+    private int cnt;
+
+    void putValue(double difSq) {
+      cnt++;
+      sum += difSq;
+    }
+
+    double get() {
+      return Math.sqrt(sum / cnt);
+    }
+  }
+
+  /**
+   * Вычисляет стандартное отклонение точек для каждого из кластеров.
+   *
+   * @param clusters Положение центров кластеров
+   * @param points Положение точек
+   * @param clustersIndex Принадлежность точек кластерам
+   * @return Стандартное отклонение точек для каждого из кластеров
+   */
+  public static double[] deviations(Point[] clusters, Point[] points, int[] clustersIndex) {
+    DeviationCalculator[] calculators = new DeviationCalculator[clusters.length];
+    double[] deviations = new double[clusters.length];
+    for (int i = 0; i < clusters.length; i++) {
+      calculators[i] = new DeviationCalculator();
+    }
+    for (int i = 0; i < points.length; i++) {
+      int clusterIndex = clustersIndex[i];
+      double distanceSq = points[i].distanceSq(clusters[clusterIndex]);
+      calculators[clusterIndex].putValue(distanceSq);
+    }
+    for (int i = 0; i < clusters.length; i++) {
+      deviations[i] = calculators[i].get();
+    }
+    return deviations;
   }
 }
 
