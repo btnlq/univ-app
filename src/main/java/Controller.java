@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -9,6 +11,7 @@ public class Controller {
 
   public Canvas pointsCanvas;
   public Canvas clustersCanvas;
+  public Spinner<Integer> clustersCountSpinner;
 
   private List<Point> points = new ArrayList<>();
   private Point[] clusters;
@@ -16,10 +19,14 @@ public class Controller {
   private static final int POINT_RADIUS = 2;
   private static final int CLUSTER_RADIUS = 3;
 
+  public void initialize() {
+    clear();
+  }
+
   private void redrawClusters(double[] derivations) {
     GraphicsContext gc = clustersCanvas.getGraphicsContext2D();
     gc.setFill(Color.WHITE);
-    clearCanvas(clustersCanvas);
+    gc.fillRect(0, 0, clustersCanvas.getWidth(), clustersCanvas.getHeight());
     if (derivations != null) {
       gc.setFill(Color.YELLOW);
       for (int i = 0; i < clusters.length; i++) {
@@ -38,7 +45,7 @@ public class Controller {
    * Выбрать начальное положение центров кластеров в соответствии с алгоритмом k-means++.
    */
   public void init() {
-    clusters = Clustering.kMeansPP(points.toArray(new Point[0]), 3);
+    clusters = Clustering.kMeansPP(points.toArray(new Point[0]), clustersCountSpinner.getValue());
     redrawClusters(null);
   }
 
@@ -67,9 +74,18 @@ public class Controller {
    * Удалить все отмеченные пользователем точки и сформированные кластеры.
    */
   public void clear() {
-    clearCanvas(pointsCanvas);
-    clearCanvas(clustersCanvas);
+    pointsCanvas.getGraphicsContext2D()
+        .clearRect(0, 0, pointsCanvas.getWidth(), pointsCanvas.getHeight());
+
+    GraphicsContext gc = clustersCanvas.getGraphicsContext2D();
+    gc.setFill(Color.WHITE);
+    gc.fillRect(0, 0, clustersCanvas.getWidth(), clustersCanvas.getHeight());
+
     points.clear();
+
+    clustersCountSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 0)
+    );
   }
 
   public void onCanvasClicked(MouseEvent mouseEvent) {
@@ -78,13 +94,15 @@ public class Controller {
     Point point = new Point(x, y);
     points.add(point);
     drawCircle(pointsCanvas.getGraphicsContext2D(), point, POINT_RADIUS);
+
+    clustersCountSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(
+            0, points.size(), clustersCountSpinner.getValue()
+        )
+    );
   }
 
   private static void drawCircle(GraphicsContext gc, Point p, double radius) {
     gc.fillOval(p.getX() - radius, p.getY() - radius, 2 * radius + 1, 2 * radius + 1);
-  }
-
-  private static void clearCanvas(Canvas canvas) {
-    canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
   }
 }

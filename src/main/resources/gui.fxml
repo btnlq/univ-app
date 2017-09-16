@@ -2,18 +2,20 @@
 
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane prefHeight="275.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
   <children>
-    <Canvas fx:id="clustersCanvas" height="206.0" layoutX="15.0" layoutY="48.0" onMouseClicked="#onCanvasClicked" width="253.0" />
-    <Canvas fx:id="pointsCanvas" height="206.0" layoutX="15.0" layoutY="48.0" onMouseClicked="#onCanvasClicked" width="253.0" />
-    <HBox layoutX="15.0" layoutY="14.0" spacing="10.0">
+    <Canvas fx:id="clustersCanvas" height="247.0" layoutY="48.0" onMouseClicked="#onCanvasClicked" width="422.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="48.0" />
+    <Canvas fx:id="pointsCanvas" height="247.0" layoutY="48.0" onMouseClicked="#onCanvasClicked" width="422.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="48.0" />
+    <HBox maxWidth="1.7976931348623157E308" spacing="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
-          <Button onAction="#init" text="Инициализация" />
-            <Button mnemonicParsing="false" onAction="#cluster" text="Кластер" />
-            <Button mnemonicParsing="false" onAction="#clear" text="Очистить" />
+          <Button maxWidth="1.7976931348623157E308" minWidth="-Infinity" onAction="#init" text="Инициализация" HBox.hgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#cluster" text="Кластер" HBox.hgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" onAction="#clear" text="Очистить" HBox.hgrow="ALWAYS" />
+            <Spinner fx:id="clustersCountSpinner" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="81.0" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
   </children>

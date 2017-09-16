@@ -16,6 +16,7 @@ public class Gui extends Application {
     Parent root = FXMLLoader.load(getClass().getResource("gui.fxml"));
     primaryStage.setTitle("Кластеризация k-means++");
     primaryStage.setScene(new Scene(root));
+    primaryStage.setResizable(false);
     primaryStage.show();
   }
 }
