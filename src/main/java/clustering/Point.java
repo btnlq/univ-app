@@ -14,7 +14,7 @@ public class Point extends Point2D {
     super(x, y);
   }
 
-  public double distanceSq(Point other) {
+  double distanceSq(Point other) {
     double dx = getX() - other.getX();
     double dy = getY() - other.getY();
     return dx * dx + dy * dy;

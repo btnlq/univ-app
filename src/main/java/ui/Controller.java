@@ -1,5 +1,6 @@
 package ui;
 
+import clustering.Cluster;
 import clustering.Clustering;
 import clustering.Point;
 import java.util.ArrayList;
@@ -21,68 +22,66 @@ public class Controller {
   public Button clusterButton;
   public Button clearButton;
 
-  private List<Point> points = new ArrayList<>();
-  private Point[] clusters;
+  private final List<Point> points = new ArrayList<>();
+  private Cluster[] clusters;
 
   private static final int POINT_RADIUS = 2;
   private static final int CLUSTER_RADIUS = 3;
 
+  /**
+   * Вызывается при запуске окна.
+   */
   public void initialize() {
     clustersCountSpinner.valueProperty().addListener((obs, oldValue, newValue)
         -> initButton.setDisable(newValue == 0));
     clear();
   }
 
-  private void redrawClusters(double[] derivations) {
+  private void redrawClusters() {
     GraphicsContext gc = clustersCanvas.getGraphicsContext2D();
     gc.setFill(Color.WHITE);
     gc.fillRect(0, 0, clustersCanvas.getWidth(), clustersCanvas.getHeight());
-    if (derivations != null) {
-      gc.setFill(Color.YELLOW);
-      for (int i = 0; i < clusters.length; i++) {
-        if (derivations[i] > 0) {
-          drawCircle(gc, clusters[i], derivations[i]);
-        }
+
+    gc.setFill(Color.YELLOW);
+    for (Cluster cluster : clusters) {
+      double derivation = cluster.deviation();
+      if (derivation > 0) {
+        drawCircle(gc, cluster.getCenter(), derivation);
       }
     }
+
     gc.setFill(Color.RED);
-    for (Point point : clusters) {
-      drawCircle(gc, point, CLUSTER_RADIUS);
+    for (Cluster cluster : clusters) {
+      drawCircle(gc, cluster.getCenter(), CLUSTER_RADIUS);
     }
   }
 
   /**
+   * Вызывается при нажатии на кнопку "Инициализация".
    * Выбрать начальное положение центров кластеров в соответствии с алгоритмом k-means++.
    */
   public void init() {
-    clusters = Clustering.kMeansPP(points.toArray(new Point[0]), clustersCountSpinner.getValue());
-    redrawClusters(null);
+    clusters = Clustering.kMeansPP(getPoints(), clustersCountSpinner.getValue());
+    redrawClusters();
 
     clusterButton.setDisable(false);
   }
 
   /**
+   * Вызывается при нажатии на кнопку "Кластер".
    * Найти оптимальное положение центров кластеров в соответствии с алгоритмом k-means.
    */
   public void cluster() {
-    Point[] pointsArray = points.toArray(new Point[0]);
-    int[] clustersIndex = Clustering.kMeans(clusters, pointsArray);
-    double[] derivations = Clustering.deviations(clusters, pointsArray, clustersIndex);
-    redrawClusters(derivations);
+    Clustering.kMeans(clusters, getPoints());
+    redrawClusters();
+  }
 
-    for (int clusterIndex = 0; clusterIndex < clusters.length; clusterIndex++) {
-      System.out.println("Cluster " + clusters[clusterIndex] + ": " + derivations[clusterIndex]);
-      for (int pointIndex = 0; pointIndex < pointsArray.length; pointIndex++) {
-        if (clustersIndex[pointIndex] == clusterIndex) {
-          System.out.println(pointsArray[pointIndex]);
-        }
-      }
-      System.out.println();
-    }
-
+  private Point[] getPoints() {
+    return points.toArray(new Point[points.size()]);
   }
 
   /**
+   * Вызывается при нажатии на кнопку "Очистить".
    * Удалить все отмеченные пользователем точки и сформированные кластеры.
    */
   public void clear() {
@@ -103,6 +102,11 @@ public class Controller {
     clearButton.setDisable(true);
   }
 
+  /**
+   * Вызывается при клике на canvas. Сохраняет место клика и рисует точку.
+   *
+   * @param mouseEvent -
+   */
   public void onCanvasClicked(MouseEvent mouseEvent) {
     double x = mouseEvent.getX();
     double y = mouseEvent.getY();
@@ -119,7 +123,7 @@ public class Controller {
     clearButton.setDisable(false);
   }
 
-  private static void drawCircle(GraphicsContext gc, Point p, double radius) {
-    gc.fillOval(p.getX() - radius, p.getY() - radius, 2 * radius + 1, 2 * radius + 1);
+  private static void drawCircle(GraphicsContext gc, Point point, double radius) {
+    gc.fillOval(point.getX() - radius, point.getY() - radius, 2 * radius + 1, 2 * radius + 1);
   }
 }

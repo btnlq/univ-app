@@ -1,5 +1,6 @@
 package ui;
 
+import clustering.Cluster;
 import clustering.Clustering;
 import clustering.Point;
 import java.util.Random;
@@ -27,17 +28,11 @@ public class Main {
     int width = 100;
 
     Point[] points = generateRandomPoints(10, height, width);
-    Point[] clusters = Clustering.kMeansPP(points, 3);
-    int[] clustersIndex = Clustering.kMeans(clusters, points);
+    Cluster[] clusters = Clustering.kMeansPP(points, 3);
+    Clustering.kMeans(clusters, points);
 
-    for (int clusterIndex = 0; clusterIndex < clusters.length; clusterIndex++) {
-      System.out.println("Cluster " + clusters[clusterIndex]);
-      for (int pointIndex = 0; pointIndex < points.length; pointIndex++) {
-        if (clustersIndex[pointIndex] == clusterIndex) {
-          System.out.println(points[pointIndex]);
-        }
-      }
-      System.out.println();
+    for (Cluster cluster : clusters) {
+      System.out.println(cluster);
     }
   }
 }

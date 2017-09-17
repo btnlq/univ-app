@@ -1,40 +1,16 @@
 package clustering;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Random;
 
-public class Clustering {
+public final class Clustering {
 
-  private static int nearestPoint(Point point, Point[] points) {
-    double bestDistance = Float.POSITIVE_INFINITY;
-    int bestIndex = -1;
-
-    for (int i = 0; i < points.length; i++) {
-      double distance = points[i].distance(point);
-
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        bestIndex = i;
-      }
-    }
-
-    return bestIndex;
+  private Clustering() {
   }
 
-  static class CentroidCalculator {
-
-    private double x;
-    private double y;
-    private int cnt;
-
-    void putPoint(Point point) {
-      x += point.getX();
-      y += point.getY();
-      cnt++;
-    }
-
-    Point get() {
-      return new Point(x / cnt, y / cnt);
-    }
+  private static Cluster nearestCluster(Point point, Cluster[] clusters) {
+    return Arrays.stream(clusters).min(Comparator.comparing(x -> x.distance(point))).get();
   }
 
   /**
@@ -42,38 +18,24 @@ public class Clustering {
    *
    * @param clusters Положения центров кластеров
    * @param points Кластеризуемые точки
-   * @return Массив из номеров кластеров, в которые попадают соответствующие точки
    */
-  public static int[] kMeans(Point[] clusters, Point[] points) {
-
-    int[] clustersIndex = new int[points.length];
+  public static void kMeans(Cluster[] clusters, Point[] points) {
 
     while (true) {
-      boolean changed = false;
-      for (int i = 0; i < points.length; i++) {
-        int newIndex = nearestPoint(points[i], clusters);
-        if (clustersIndex[i] != newIndex) {
-          changed = true;
-          clustersIndex[i] = newIndex;
-        }
+
+      for (Cluster cluster : clusters) {
+        cluster.clearPoints();
       }
-      if (!changed) {
+
+      for (Point point : points) {
+        Cluster cluster = nearestCluster(point, clusters);
+        cluster.addPoint(point);
+      }
+
+      if (Arrays.stream(clusters).mapToDouble(Cluster::updateCenter).sum() < 1e-6) {
         break;
       }
-
-      CentroidCalculator[] calculators = new CentroidCalculator[clusters.length];
-      for (int i = 0; i < clusters.length; i++) {
-        calculators[i] = new CentroidCalculator();
-      }
-      for (int i = 0; i < points.length; i++) {
-        calculators[clustersIndex[i]].putPoint(points[i]);
-      }
-      for (int i = 0; i < clusters.length; i++) {
-        clusters[i] = calculators[i].get();
-      }
     }
-
-    return clustersIndex;
   }
 
   /**
@@ -84,29 +46,29 @@ public class Clustering {
    * @param clustersCount Требуемое количество кластеров
    * @return Положения центров кластеров
    */
-  public static Point[] kMeansPP(Point[] points, int clustersCount) {
+  public static Cluster[] kMeansPP(Point[] points, int clustersCount) {
 
     Random random = new Random();
 
     // квадраты расстояний от точки до ближайшего кластера
-    double[] distancesSq = new double[points.length];
+    double[] distances = new double[points.length];
     for (int i = 0; i < points.length; i++) {
-      distancesSq[i] = Double.POSITIVE_INFINITY;
+      distances[i] = Double.POSITIVE_INFINITY;
     }
 
-    Point[] clusters = new Point[clustersCount];
-    clusters[0] = points[random.nextInt(points.length)];
+    Cluster[] clusters = new Cluster[clustersCount];
+    clusters[0] = new Cluster(points[random.nextInt(points.length)]);
 
     for (int clusterId = 1; clusterId < clustersCount; clusterId++) {
 
-      Point previousCluster = clusters[clusterId - 1];
+      Cluster previousCluster = clusters[clusterId - 1];
 
       // обновляем расстояния с учетом нового добавленного кластера
       double sum = 0;
       for (int i = 0; i < points.length; i++) {
-        double distanceSq = Math.min(previousCluster.distanceSq(points[i]), distancesSq[i]);
-        distancesSq[i] = distanceSq;
-        sum += distanceSq;
+        double distance = Math.min(previousCluster.distance(points[i]), distances[i]);
+        distances[i] = distance;
+        sum += distance;
       }
 
       // выбираем новый кластер пропорционально вычисленным расстояниям
@@ -114,57 +76,15 @@ public class Clustering {
       sum = 0;
       int i = 0;
       for (; i < points.length; i++) {
-        sum += distancesSq[i];
+        sum += distances[i];
         if (sum >= level) {
           break;
         }
       }
 
-      clusters[clusterId] = points[i];
+      clusters[clusterId] = new Cluster(points[i]);
     }
 
     return clusters;
   }
-
-  static class DeviationCalculator {
-
-    private double sum;
-    private int cnt;
-
-    void putValue(double difSq) {
-      cnt++;
-      sum += difSq;
-    }
-
-    double get() {
-      return Math.sqrt(sum / cnt);
-    }
-  }
-
-  /**
-   * Вычисляет стандартное отклонение точек для каждого из кластеров.
-   *
-   * @param clusters Положение центров кластеров
-   * @param points Положение точек
-   * @param clustersIndex Принадлежность точек кластерам
-   * @return Стандартное отклонение точек для каждого из кластеров
-   */
-  public static double[] deviations(Point[] clusters, Point[] points, int[] clustersIndex) {
-    DeviationCalculator[] calculators = new DeviationCalculator[clusters.length];
-    double[] deviations = new double[clusters.length];
-    for (int i = 0; i < clusters.length; i++) {
-      calculators[i] = new DeviationCalculator();
-    }
-    for (int i = 0; i < points.length; i++) {
-      int clusterIndex = clustersIndex[i];
-      double distanceSq = points[i].distanceSq(clusters[clusterIndex]);
-      calculators[clusterIndex].putValue(distanceSq);
-    }
-    for (int i = 0; i < clusters.length; i++) {
-      deviations[i] = calculators[i].get();
-    }
-    return deviations;
-  }
 }
-
-
