@@ -1,3 +1,7 @@
+package ui;
+
+import clustering.Clustering;
+import clustering.Point;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.Canvas;

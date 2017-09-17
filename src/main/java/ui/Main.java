@@ -1,3 +1,7 @@
+package ui;
+
+import clustering.Clustering;
+import clustering.Point;
 import java.util.Random;
 
 public class Main {

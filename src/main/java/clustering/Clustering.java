@@ -1,3 +1,5 @@
+package clustering;
+
 import java.util.Random;
 
 public class Clustering {

@@ -1,9 +1,11 @@
+package clustering;
+
 import javafx.geometry.Point2D;
 
-class Point extends Point2D {
+public class Point extends Point2D {
 
   /**
-   * Creates a new instance of {@code Point}.
+   * Creates a new instance of {@code clustering.Point}.
    *
    * @param x the x coordinate of the point
    * @param y the y coordinate of the point
