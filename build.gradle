@@ -5,6 +5,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
+apply plugin: 'findbugs'
 
 // Для поддержки русского языка в заголовках
 // compileJava.options.encoding = 'UTF-8'
@@ -54,6 +55,20 @@ pmd {
             'java-unusedcode'
     ]
     toolVersion = "5.8.1"
+}
+
+findbugs {
+    toolVersion = "3.0.1"
+    effort = "max"
+    reportLevel = "low"
+    ignoreFailures = true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
 }
 
 dependencies {
