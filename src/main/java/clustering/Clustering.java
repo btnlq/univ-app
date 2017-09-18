@@ -6,6 +6,8 @@ import java.util.Random;
 
 public final class Clustering {
 
+  private static final double EPS = 1e-6;
+
   private Clustering() {
   }
 
@@ -32,7 +34,7 @@ public final class Clustering {
         cluster.addPoint(point);
       }
 
-      if (Arrays.stream(clusters).mapToDouble(Cluster::updateCenter).sum() < 1e-6) {
+      if (Arrays.stream(clusters).mapToDouble(Cluster::updateCenter).sum() < EPS) {
         break;
       }
     }
@@ -50,11 +52,9 @@ public final class Clustering {
 
     Random random = new Random();
 
-    // квадраты расстояний от точки до ближайшего кластера
+    // расстояния от точки до ближайшего кластера
     double[] distances = new double[points.length];
-    for (int i = 0; i < points.length; i++) {
-      distances[i] = Double.POSITIVE_INFINITY;
-    }
+    Arrays.fill(distances, Double.POSITIVE_INFINITY);
 
     Cluster[] clusters = new Cluster[clustersCount];
     clusters[0] = new Cluster(points[random.nextInt(points.length)]);
@@ -64,27 +64,41 @@ public final class Clustering {
       Cluster previousCluster = clusters[clusterId - 1];
 
       // обновляем расстояния с учетом нового добавленного кластера
-      double sum = 0;
       for (int i = 0; i < points.length; i++) {
-        double distance = Math.min(previousCluster.distance(points[i]), distances[i]);
-        distances[i] = distance;
-        sum += distance;
+        distances[i] = Math.min(previousCluster.distance(points[i]), distances[i]);
       }
-
       // выбираем новый кластер пропорционально вычисленным расстояниям
-      double level = random.nextDouble() * sum;
-      sum = 0;
-      int i = 0;
-      for (; i < points.length; i++) {
-        sum += distances[i];
-        if (sum >= level) {
-          break;
-        }
-      }
-
-      clusters[clusterId] = new Cluster(points[i]);
+      int index = randomFromDistribution(distances, random);
+      clusters[clusterId] = new Cluster(points[index]);
     }
 
     return clusters;
+  }
+
+  /**
+   * Случайным образом выбирает число от 0 до {@code distribution.length()},
+   * причем вероятность выбора {@code i} пропорциональна {@code distribution[i]}.
+   *
+   * @param distribution Массив вероятностей
+   * @param random -
+   * @return Выбранное число
+   */
+  private static int randomFromDistribution(double[] distribution, Random random) {
+    double sum = 0;
+    for (double probability : distribution) {
+      sum += probability;
+    }
+
+    double level = random.nextDouble() * sum;
+    sum = 0;
+    int index = 0;
+    for (double probability : distribution) {
+      sum += probability;
+      if (sum >= level) {
+        break;
+      }
+      index++;
+    }
+    return index;
   }
 }
