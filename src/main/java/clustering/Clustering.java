@@ -8,9 +8,6 @@ public final class Clustering {
 
   private static final double EPS = 1e-6;
 
-  private Clustering() {
-  }
-
   private static Cluster nearestCluster(Point point, Cluster[] clusters) {
     return Arrays.stream(clusters).min(Comparator.comparing(x -> x.distance(point))).get();
   }

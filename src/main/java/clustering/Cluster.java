@@ -28,7 +28,19 @@ public class Cluster {
     points.clear();
   }
 
+  int size() {
+    return points.size();
+  }
+
+  /**
+   * Вычисляет центр кластера в соответствии с имеющимися в нём точками.
+   *
+   * @return Расстояние между старым и новым центрами кластера
+   */
   double updateCenter() {
+    if (points.isEmpty()) {
+      return 0;
+    }
 
     double x = 0;
     double y = 0;
@@ -47,6 +59,7 @@ public class Cluster {
 
   /**
    * Вычисляет стандартное отклонение точек, принадлежащих кластеру.
+   *
    * @return стандартное отклонение точек, принадлежащих кластеру
    */
   public double deviation() {
@@ -63,6 +76,10 @@ public class Cluster {
 
   @Override
   public String toString() {
+    if (points.isEmpty()) {
+      return "Empty cluster " + center;
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append("Cluster ").append(center).append(": ").append(deviation());
     for (Point point : points) {
