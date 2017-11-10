@@ -15,7 +15,7 @@ public class PointTest {
 
     assertEquals(25, point1.distanceSq(point2), DELTA);
     assertEquals(25, point2.distanceSq(point1), DELTA);
-    assertEquals(0, point1.distanceSq(point2), DELTA);
+    assertEquals(0, point1.distanceSq(point1), DELTA);
   }
 
   @Test
